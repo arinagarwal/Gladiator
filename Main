@@ -1,0 +1,182 @@
+// imports needed
+import java.lang.reflect.*;
+import java.util.*;
+public class Gladiator extends CombatBlueprint implements CombatActions{
+
+  private int attackSequence[];
+  
+  public void startFight(ArrayList<roundAction> enemyData)
+  {
+    int s = enemyData.size();
+    attackSequence = new int [s];
+    setEnemyData(enemyData);
+    for(int x = 0; x < s; x++)
+    {
+      for(int y = 0; y<s; y++)
+      {
+        if(enemyData.get(x).roundNumber == y)
+        {
+          attackSequence[y] = enemyData.get(x).attackType;
+        }
+      }
+    }
+  }
+   
+  public int beginRound(int enemyAttackSequence) 
+  {
+    return attackSequence[enemyAttackSequence];
+  } 
+
+  
+
+
+
+
+
+
+	// End of part 1 --------------------------
+	// You are now finished and ready to test. Do not change anything below this.
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// DO NOT CHANGE OR DO ANYTHING BELOW THIS LINE!!!!
+
+/** Test method is for testing your code to feel confident before you try to submit for a grade */
+  private void test() {
+		// create random sequences for the enemy fighter
+		ArrayList<roundAction> tmp = new ArrayList<>();
+		for(int x=0; x < 1000; x++){
+				tmp.add(new roundAction(x,(int)(Math.random()*3)+1));
+		}
+
+		// mix up the data
+		for(roundAction r:tmp)
+		Collections.shuffle(tmp, new Random(5));
+		setEnemyData(tmp);
+
+		// run the start of the fight
+		startFight(getEnemyData());
+
+		// start the fight test
+		System.out.println("\n\nTesting\n");
+		tmp = getEnemyData();
+	
+		// attempt #1
+		System.out.println("ROUND 1:");
+		roundCheck(tmp);
+		System.out.println("\nROUND 2:");
+		roundCheck(tmp);
+		System.out.println("\nROUND 3:");
+		roundCheck(tmp);
+		System.out.println("\nROUND 4:");
+		roundCheck(tmp);
+		System.out.println("\nROUND 5:");
+		roundCheck(tmp);
+  }
+
+	/** printSequences is for printing out every round number of an array in order they appear
+		param ArrayList<roundAction>	data	is the 1d ArrayList containing all the enemies previous rounds
+	*/
+	public void printSequences(ArrayList<roundAction> data){
+		for(roundAction x: data)
+			System.out.print("  Round:"+x.roundNumber+"  Type:"+x.attackType);
+	}
+
+	/** roundCheck will choose a random round from his past to simulate him choosing an attack to try on you now. In essence
+			it is all your rounds of combat in this fight.
+			param ArrayList<roundAction> data is the 1d ArrayList containing all the enemies previous rounds
+	*/
+	public void roundCheck(ArrayList<roundAction> data){
+		int sequence = (int)(Math.random()*1000);
+		int ans = findSequence(sequence,data);
+		System.out.println("CORRECT: Sequence:"+sequence+"  Type:"+ans);
+		long startTime = System.nanoTime();
+		int ansCheck = beginRound(sequence);
+		long stopTime = System.nanoTime();
+		System.out.println("ANSWER:  Type:"+ansCheck + "  TIME:"+(stopTime-startTime)+" NS");
+		if(ansCheck == ans && stopTime-startTime < 10000){System.out.println("You correctly determined his action and blocked accordingly! - Success");}
+		else if(ansCheck == ans){System.out.println("You figured out his move, but didn't react in time to stop it, you have failed...");}
+		else{System.out.println("You panic not knowing what to do.... it obviously doesn't end well....");}
+
+	}
+
+	/** findSequence will check to see if it can find the round desired in the list of data. If it finds it, then it will return
+			the target of his attack.
+			param int seq is the round sequence of his attack
+			param ArrayList<roundAction> data is the list of all his previous attacks
+			return int is the type of attack he targetted.
+	*/
+	public int findSequence(int seq, ArrayList<roundAction> data){
+			for(roundAction x:data){
+				if(x.roundNumber == seq)
+					return x.attackType;
+			}
+			return 0;
+	}
+
+/** the entry part of the program/class and will just run the test */
+  public static void main(String[] args) {
+    new Gladiator().test();
+  }
+}
+
+
+//						EVERYTHING BELOW THIS IS IMPORTANT TO LOOK AT AND UNDERSTAND TO SUCCESSFULLY COMPLETE THIS ASSIGNMENT
+//						DO NOT CHANGE ANY OF THIS CODE HOWEVER !!!
+// -----------------------------------------------------------------------------------------------------------------
+/** INTERFACE YOU WILL NEED TO UNDERSTAND
+	CombatActions is the interface your class is already using that you need to implement!
+*/
+interface CombatActions {
+	public int beginRound(int enemyAttackSequence);
+	public void startFight(ArrayList<roundAction> enemyData);
+};
+
+/** ABSTRACT CLASS YOU WILL NEED TO UNDERSTAND
+	CombatBlueprint is the abstract class your class is using and you need to use as well to finish successfully
+*/
+abstract class CombatBlueprint {
+	private ArrayList<roundAction> enemyData;
+
+	public ArrayList<roundAction> getEnemyData(){
+		return this.enemyData;
+	}
+
+	public void setEnemyData(ArrayList<roundAction> eData) {
+		this.enemyData = eData;
+	}
+}
+
+/** This is a class made to create our own data type to hold the enemies previous actions.
+		roundNumber is the previous round. 0 is his first round in his first fight, then each one after increments by 1
+		attackType is the associated target of this attack.
+*/
+class roundAction {
+	public int roundNumber; // what round did he do this attack
+	public int attackType;  // 1 = legs, 2 = body, 3 = head
+	public roundAction(int r, int a){this.roundNumber = r;this.attackType = a;}
+}
